@@ -12,6 +12,11 @@ HINSTANCE Window::WindowRegister::getInstance()
 	return wndRg.hInt;
 }
 
+Graphics& Window::gfx()
+{
+	return *pGfx;
+}
+
 Window::WindowRegister::WindowRegister():hInt(GetModuleHandle(nullptr))
 {
 	WNDCLASSEX wc = { 0 };
@@ -23,7 +28,7 @@ Window::WindowRegister::WindowRegister():hInt(GetModuleHandle(nullptr))
 	wc.hInstance = GetModuleHandle(nullptr);
 	wc.hIcon = nullptr;
 	wc.hCursor = nullptr;
-	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	wc.hbrBackground = nullptr;
 	wc.lpszClassName = getName();
 	wc.lpszMenuName = nullptr;
 
@@ -35,21 +40,27 @@ Window::WindowRegister::~WindowRegister()
 	UnregisterClass(getName(),getInstance());
 }
 
-Window::Window()
+Window::Window(LPCWSTR wndName, const int width, const int height)
 {
-		hWnd = CreateWindowEx(
+	RECT r;
+	r.left = 0;
+	r.top = 0;
+	r.right = width ;
+	r.bottom = height ;
+	AdjustWindowRect(&r, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, FALSE);
+	hWnd = CreateWindowEx(
 		0,
 		WindowRegister::getName(),
-		L"OOP",
+		wndName,
 		WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU,
 		0, 0,
-		1280, 720,
+		r.right - r.left, r.bottom - r.top,
 		nullptr,
 		nullptr,
 		WindowRegister::getInstance(),
 		this);
 	ShowWindow(hWnd, SW_SHOW);
-
+	pGfx.emplace(hWnd);
 }
 
 Window::~Window()
