@@ -29,5 +29,7 @@ int Game::start()
 
 void Game::update()
 {
+	wnd.gfx().clearBuffer();
+	wnd.gfx().drawTriangle();
 	wnd.gfx().flipBackBuffer();
 }
