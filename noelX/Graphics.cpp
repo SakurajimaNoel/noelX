@@ -13,7 +13,8 @@ Graphics::Graphics(HWND hWnd)
 	scd.BufferDesc.RefreshRate.Numerator = 0;
 	scd.BufferDesc.RefreshRate.Denominator = 0;
 	scd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-	scd.SampleDesc.Count = 1;
+	scd.SampleDesc.Count = 2;
+	scd.SampleDesc.Quality = 0;
 	scd.OutputWindow = hWnd;
 	scd.Windowed = TRUE;
 	scd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
@@ -59,15 +60,27 @@ void Graphics::drawTriangle()
 
 	struct Vertex
 	{
-		float x;
-		float y;
+		struct
+		{
+			float x;
+			float y;
+		}pos;
+
+		struct
+		{
+			unsigned char r;
+			unsigned char g;
+			unsigned char b;
+			unsigned char a;
+		}color;
 	};
 
 	Vertex vertices[] =
 	{
-		{0.0f, 0.5f},
-		{0.5f, -0.5f},
-		{-0.5f, -0.5f}
+		{0.0f, 0.5f, 255, 0, 0, 0},
+		{0.5f, -0.5f, 0, 255, 0, 0},
+		{-0.5f, -0.5f, 0, 0, 255, 0},
+		
 	};
 
 	//vertex buffer
@@ -129,10 +142,30 @@ void Graphics::drawTriangle()
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> iLayout;
 	const D3D11_INPUT_ELEMENT_DESC iDesc[] =
 	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT,0,0,D3D11_INPUT_PER_VERTEX_DATA,0 }
+		{ "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT,0,0,D3D11_INPUT_PER_VERTEX_DATA,0 },
+		{ "COLOR", 0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 	device->CreateInputLayout(iDesc, (UINT)std::size(iDesc), blob->GetBufferPointer(), blob->GetBufferSize(), &iLayout);
 	context->IASetInputLayout(iLayout.Get());
+
+	//Rasterizer state
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterState;
+
+	D3D11_RASTERIZER_DESC rsDesc;
+	rsDesc.FillMode = D3D11_FILL_SOLID;
+	rsDesc.CullMode = D3D11_CULL_FRONT;
+	rsDesc.FrontCounterClockwise = true;
+	rsDesc.DepthBias = false;
+	rsDesc.DepthBiasClamp = 0;
+	rsDesc.SlopeScaledDepthBias = 0;
+	rsDesc.DepthClipEnable = true;
+	rsDesc.ScissorEnable = true;
+	rsDesc.MultisampleEnable = true;
+	rsDesc.AntialiasedLineEnable = true;
+
+	device->CreateRasterizerState(&rsDesc, &rasterState);
+	context->RSSetState(rasterState.Get());
+
 
 	//draw
 	context->Draw(std::size(vertices), 0u);
