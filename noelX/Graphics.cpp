@@ -42,7 +42,6 @@ Graphics::Graphics(HWND hWnd)
 }
 
 
-
 void Graphics::flipBackBuffer()
 {
 	swapChain->Present(1u, 0u);
@@ -54,6 +53,7 @@ void Graphics::clearBuffer()
 	context->ClearRenderTargetView(rtw.Get(), color);
 }
 
+
 void Graphics::drawTriangle()
 {
 	//vertex data
@@ -64,6 +64,7 @@ void Graphics::drawTriangle()
 		{
 			float x;
 			float y;
+			float z;
 		}pos;
 
 		struct
@@ -77,10 +78,10 @@ void Graphics::drawTriangle()
 
 	Vertex vertices[] =
 	{
-		{0.0f, 0.5f, 255, 0, 0, 0},
-		{0.5f, -0.5f, 0, 255, 0, 0},
-		{-0.5f, -0.5f, 0, 0, 255, 0},
-		
+		{-0.5f,-0.5f,-0.5f, 255, 0, 0, 0},
+		{-0.5f,-0.5f, 0.5f, 0, 255, 0, 0},
+		{-0.5f, 0.5f,-0.5f, 0, 0, 255, 0},
+		{-0.5f, 0.5f, 0.5f, 0, 255, 0, 0}
 	};
 
 	//vertex buffer
@@ -103,6 +104,30 @@ void Graphics::drawTriangle()
 	const UINT offset = 0u;
 	context->IASetVertexBuffers(0u, 1u, vertexBuffer.GetAddressOf(), &stride, &offset);
 	
+	//index buffer
+	const unsigned short int indices[] =
+	{
+		0, 2, 1,
+		
+	};
+	//16 bit index buffer gives around 64k traingles, change to 32bit uint if needed.
+	Microsoft::WRL::ComPtr<ID3D11Buffer>indexBuffer;
+
+	D3D11_BUFFER_DESC indexBufferDesc = { 0 };
+	indexBufferDesc.ByteWidth = sizeof(indices);
+	indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	indexBufferDesc.CPUAccessFlags = 0u;
+	indexBufferDesc.MiscFlags = 0u;
+
+
+	D3D11_SUBRESOURCE_DATA indexSubResData = { 0 };
+	indexSubResData.pSysMem = indices;
+
+	device->CreateBuffer(&indexBufferDesc, &indexSubResData, &indexBuffer);
+
+	context->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0u);
+
 	//pixel shader
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader;
 	Microsoft::WRL::ComPtr<ID3DBlob> blob;
@@ -114,7 +139,6 @@ void Graphics::drawTriangle()
 
 	//topology
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
 
 
 	//vertex shader
@@ -142,7 +166,7 @@ void Graphics::drawTriangle()
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> iLayout;
 	const D3D11_INPUT_ELEMENT_DESC iDesc[] =
 	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT,0,0,D3D11_INPUT_PER_VERTEX_DATA,0 },
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,0,0,D3D11_INPUT_PER_VERTEX_DATA,0 },
 		{ "COLOR", 0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 	device->CreateInputLayout(iDesc, (UINT)std::size(iDesc), blob->GetBufferPointer(), blob->GetBufferSize(), &iLayout);
@@ -168,5 +192,5 @@ void Graphics::drawTriangle()
 
 
 	//draw
-	context->Draw(std::size(vertices), 0u);
+	context->DrawIndexed(std::size(indices), 0u, 0u);
 }
