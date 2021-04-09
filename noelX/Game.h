@@ -1,6 +1,6 @@
 #pragma once
 #include "WinWrap.h"
-
+#include "Time.h"
 class Game
 {
 public:
@@ -9,6 +9,7 @@ public:
 private:
 	void update();
 	Window wnd;
+	Time time;
 };
 
 

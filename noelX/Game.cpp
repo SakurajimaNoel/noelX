@@ -1,6 +1,6 @@
 #include "Game.h"
 
-Game::Game():wnd(L"Big",640,480){}
+Game::Game():wnd(L"Big",1024,768){}
 
 int Game::start() 
 {
@@ -29,7 +29,7 @@ int Game::start()
 
 void Game::update()
 {
-	wnd.gfx().clearBuffer();
-	wnd.gfx().drawTriangle();
+	wnd.gfx().clearBuffer(1.0, 0.5f, 0.25f);
+	wnd.gfx().drawTriangle(time.getTime());
 	wnd.gfx().flipBackBuffer();
 }

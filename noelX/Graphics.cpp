@@ -47,14 +47,14 @@ void Graphics::flipBackBuffer()
 	swapChain->Present(1u, 0u);
 }
 
-void Graphics::clearBuffer()
+void Graphics::clearBuffer(float r, float g, float b)
 {
-	const float color[] = { 1.0f, 0.5f, 0.25f, 1.0f };
+	const float color[] = { r, g, b, 1.0f };
 	context->ClearRenderTargetView(rtw.Get(), color);
 }
 
 
-void Graphics::drawTriangle()
+void Graphics::drawTriangle(float angle)
 {
 	//vertex data
 
@@ -62,9 +62,7 @@ void Graphics::drawTriangle()
 	{
 		struct
 		{
-			float x;
-			float y;
-			float z;
+			DirectX::XMFLOAT3 position;
 		}pos;
 
 		struct
@@ -78,10 +76,14 @@ void Graphics::drawTriangle()
 
 	Vertex vertices[] =
 	{
-		{-0.5f,-0.5f,-0.5f, 255, 0, 0, 0},
-		{-0.5f,-0.5f, 0.5f, 0, 255, 0, 0},
-		{-0.5f, 0.5f,-0.5f, 0, 0, 255, 0},
-		{-0.5f, 0.5f, 0.5f, 0, 255, 0, 0}
+		{DirectX::XMFLOAT3(-0.5f,-0.5f,-0.5f), 255, 0, 0, 255},
+		{DirectX::XMFLOAT3(-0.5f,-0.5f, 0.5f), 0, 255, 0, 255},
+		{DirectX::XMFLOAT3(-0.5f, 0.5f,-0.5f), 0, 0, 255, 255},
+		{DirectX::XMFLOAT3(-0.5f, 0.5f, 0.5f), 0, 255, 255, 255},
+		{DirectX::XMFLOAT3(0.5f,-0.5f,-0.5f), 255, 255, 255, 255},
+		{DirectX::XMFLOAT3(0.5f,-0.5f, 0.5f), 255, 0, 0, 255},
+		{DirectX::XMFLOAT3(0.5f, 0.5f,-0.5f), 0, 255, 0, 255},
+		{DirectX::XMFLOAT3(0.5f, 0.5f, 0.5f), 0, 0, 255, 255},
 	};
 
 	//vertex buffer
@@ -107,9 +109,14 @@ void Graphics::drawTriangle()
 	//index buffer
 	const unsigned short int indices[] =
 	{
-		0, 2, 1,
-		
+		0,2,1,	2,3,1,
+		1,3,5, 	3,7,5,
+		2,6,3, 	3,6,7,
+		4,5,7, 	4,7,6,
+		0,4,2, 	2,4,6,
+		0,1,4, 	1,5,4,
 	};
+
 	//16 bit index buffer gives around 64k traingles, change to 32bit uint if needed.
 	Microsoft::WRL::ComPtr<ID3D11Buffer>indexBuffer;
 
@@ -127,7 +134,40 @@ void Graphics::drawTriangle()
 	device->CreateBuffer(&indexBufferDesc, &indexSubResData, &indexBuffer);
 
 	context->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0u);
+	
+	//constant buffer
+	struct ConstantBuffer
+	{
+		DirectX::XMMATRIX transform;
+	};
+	const ConstantBuffer cb =
+	{
+		{
+			DirectX::XMMatrixTranspose
+			(
+				DirectX::XMMatrixRotationZ(angle)*
+				DirectX::XMMatrixRotationY(angle)*
+				DirectX::XMMatrixTranslation(0.0f, 0.0f, 2.0f)*
+				DirectX::XMMatrixPerspectiveLH(1.0f, 0.75f, 0.4f, 100.0f)
+				
+			)
+		}
+	};
 
+	Microsoft::WRL::ComPtr<ID3D11Buffer>vsConstantBuffer;
+
+	D3D11_BUFFER_DESC vsConstBuffDesc = { 0 };
+	vsConstBuffDesc.ByteWidth = sizeof(cb);
+	vsConstBuffDesc.Usage = D3D11_USAGE_DYNAMIC;
+	vsConstBuffDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	vsConstBuffDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	vsConstBuffDesc.MiscFlags = 0u;
+
+	D3D11_SUBRESOURCE_DATA vsConstSubResData = { 0 };
+	vsConstSubResData.pSysMem = &cb;
+
+	device->CreateBuffer(&vsConstBuffDesc, &vsConstSubResData, &vsConstantBuffer);
+	context->VSSetConstantBuffers(0u, 1u, vsConstantBuffer.GetAddressOf());
 	//pixel shader
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader;
 	Microsoft::WRL::ComPtr<ID3DBlob> blob;
@@ -156,8 +196,8 @@ void Graphics::drawTriangle()
 	D3D11_VIEWPORT vwp = { 0 };
 	vwp.TopLeftX = 0;
 	vwp.TopLeftY = 0;
-	vwp.Width = 640;
-	vwp.Height = 480;	
+	vwp.Width = 1024;//640
+	vwp.Height = 768;	//480
 	vwp.MinDepth = 0;
 	vwp.MaxDepth = 1;
 	context->RSSetViewports(1u, &vwp);
@@ -177,7 +217,7 @@ void Graphics::drawTriangle()
 
 	D3D11_RASTERIZER_DESC rsDesc;
 	rsDesc.FillMode = D3D11_FILL_SOLID;
-	rsDesc.CullMode = D3D11_CULL_FRONT;
+	rsDesc.CullMode = D3D11_CULL_BACK;
 	rsDesc.FrontCounterClockwise = true;
 	rsDesc.DepthBias = false;
 	rsDesc.DepthBiasClamp = 0;
@@ -189,7 +229,7 @@ void Graphics::drawTriangle()
 
 	device->CreateRasterizerState(&rsDesc, &rasterState);
 	context->RSSetState(rasterState.Get());
-
+	
 
 	//draw
 	context->DrawIndexed(std::size(indices), 0u, 0u);

@@ -3,7 +3,7 @@
 #include<d3dcompiler.h>
 #include<array>
 #include<wrl.h>
-
+#include<DirectXMath.h>
 class Graphics
 {
 public:
@@ -12,8 +12,8 @@ public:
 	Graphics(const Graphics&) = delete;
 	Graphics& operator=(const Graphics&) = delete;
 	void flipBackBuffer();
-	void clearBuffer();
-	void drawTriangle();
+	void clearBuffer(float r, float g, float b);
+	void drawTriangle(float angle);
 private:
 	
 	Microsoft::WRL::ComPtr<ID3D11Device> device;
