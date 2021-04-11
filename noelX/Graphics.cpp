@@ -1,7 +1,8 @@
 #include "Graphics.h"
-#pragma comment(lib, "d3d11.lib")
-#pragma comment(lib, "D3DCompiler.lib")
 
+Graphics::Graphics()
+{
+}
 
 Graphics::Graphics(HWND hWnd)
 {
@@ -13,7 +14,7 @@ Graphics::Graphics(HWND hWnd)
 	scd.BufferDesc.RefreshRate.Numerator = 0;
 	scd.BufferDesc.RefreshRate.Denominator = 0;
 	scd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-	scd.SampleDesc.Count = 2;
+	scd.SampleDesc.Count = 1;
 	scd.SampleDesc.Quality = 0;
 	scd.OutputWindow = hWnd;
 	scd.Windowed = TRUE;
@@ -38,9 +39,51 @@ Graphics::Graphics(HWND hWnd)
 	swapChain->GetBuffer(0, __uuidof(ID3D11Resource), &backBuffer);
 	device->CreateRenderTargetView(backBuffer.Get(), nullptr, &rtw);
 
+	D3D11_DEPTH_STENCIL_DESC dsDesc = { 0 };
+	dsDesc.DepthEnable = true;
+	dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
+	
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilState>depthStencil;
+	device->CreateDepthStencilState(&dsDesc, &depthStencil);
+	context->OMSetDepthStencilState(depthStencil.Get(), 1u);
 
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> depthMask;
+	D3D11_TEXTURE2D_DESC depthMaskDesc = { 0 };
+	depthMaskDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	depthMaskDesc.ArraySize = 1u;
+	depthMaskDesc.MipLevels = 1u;
+	depthMaskDesc.Usage = D3D11_USAGE_DEFAULT;
+	depthMaskDesc.SampleDesc.Count = 1u;
+	depthMaskDesc.SampleDesc.Quality = 0u;
+	depthMaskDesc.Height = 768u;
+	depthMaskDesc.Width = 1024u;
+	depthMaskDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	
+	device->CreateTexture2D(&depthMaskDesc, nullptr, &depthMask);
+
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC dswDesc = { };
+	dswDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	dswDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	dswDesc.Texture2D.MipSlice = 0u;
+	device->CreateDepthStencilView(depthMask.Get(), &dswDesc, &dsw);
+
+	//render target view
+	context->OMSetRenderTargets(1u, rtw.GetAddressOf(), dsw.Get());
 }
 
+void Graphics::createResources()
+{
+	/*auto createShadersTask = Concurrency::create_task([this]() 
+	{
+		
+	});
+	auto createGeometryTask = createShadersTask.then([this]()
+	{
+		
+	});*/
+}
 
 void Graphics::flipBackBuffer()
 {
@@ -51,186 +94,23 @@ void Graphics::clearBuffer(float r, float g, float b)
 {
 	const float color[] = { r, g, b, 1.0f };
 	context->ClearRenderTargetView(rtw.Get(), color);
+	context->ClearDepthStencilView(dsw.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
 }
 
-
-void Graphics::drawTriangle(float angle)
+ID3D11Device* Graphics::getDevice()
 {
-	//vertex data
+	return device.Get();
+}
+IDXGISwapChain* Graphics::getSwapChain()
+{
+	return swapChain.Get();
+}
+ID3D11DeviceContext* Graphics::getContext()
+{
+	return context.Get();
+}
 
-	struct Vertex
-	{
-		struct
-		{
-			DirectX::XMFLOAT3 position;
-		}pos;
-
-		struct
-		{
-			unsigned char r;
-			unsigned char g;
-			unsigned char b;
-			unsigned char a;
-		}color;
-	};
-
-	Vertex vertices[] =
-	{
-		{DirectX::XMFLOAT3(-0.5f,-0.5f,-0.5f), 255, 0, 0, 255},
-		{DirectX::XMFLOAT3(-0.5f,-0.5f, 0.5f), 0, 255, 0, 255},
-		{DirectX::XMFLOAT3(-0.5f, 0.5f,-0.5f), 0, 0, 255, 255},
-		{DirectX::XMFLOAT3(-0.5f, 0.5f, 0.5f), 0, 255, 255, 255},
-		{DirectX::XMFLOAT3(0.5f,-0.5f,-0.5f), 255, 255, 255, 255},
-		{DirectX::XMFLOAT3(0.5f,-0.5f, 0.5f), 255, 0, 0, 255},
-		{DirectX::XMFLOAT3(0.5f, 0.5f,-0.5f), 0, 255, 0, 255},
-		{DirectX::XMFLOAT3(0.5f, 0.5f, 0.5f), 0, 0, 255, 255},
-	};
-
-	//vertex buffer
-	Microsoft::WRL::ComPtr<ID3D11Buffer>vertexBuffer;
-
-	D3D11_BUFFER_DESC bufferDesc = { 0 };
-	bufferDesc.ByteWidth = sizeof(vertices);
-	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bufferDesc.CPUAccessFlags = 0u;
-	bufferDesc.MiscFlags = 0u;
-	bufferDesc.StructureByteStride = sizeof(Vertex);
-
-	D3D11_SUBRESOURCE_DATA subResData = { 0 };//idk fam
-	subResData.pSysMem = vertices;
-
-	device->CreateBuffer(&bufferDesc, &subResData, &vertexBuffer);
-	
-	const UINT stride = sizeof(Vertex);
-	const UINT offset = 0u;
-	context->IASetVertexBuffers(0u, 1u, vertexBuffer.GetAddressOf(), &stride, &offset);
-	
-	//index buffer
-	const unsigned short int indices[] =
-	{
-		0,2,1,	2,3,1,
-		1,3,5, 	3,7,5,
-		2,6,3, 	3,6,7,
-		4,5,7, 	4,7,6,
-		0,4,2, 	2,4,6,
-		0,1,4, 	1,5,4,
-	};
-
-	//16 bit index buffer gives around 64k traingles, change to 32bit uint if needed.
-	Microsoft::WRL::ComPtr<ID3D11Buffer>indexBuffer;
-
-	D3D11_BUFFER_DESC indexBufferDesc = { 0 };
-	indexBufferDesc.ByteWidth = sizeof(indices);
-	indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	indexBufferDesc.CPUAccessFlags = 0u;
-	indexBufferDesc.MiscFlags = 0u;
-
-
-	D3D11_SUBRESOURCE_DATA indexSubResData = { 0 };
-	indexSubResData.pSysMem = indices;
-
-	device->CreateBuffer(&indexBufferDesc, &indexSubResData, &indexBuffer);
-
-	context->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0u);
-	
-	//constant buffer
-	struct ConstantBuffer
-	{
-		DirectX::XMMATRIX transform;
-	};
-	const ConstantBuffer cb =
-	{
-		{
-			DirectX::XMMatrixTranspose
-			(
-				DirectX::XMMatrixRotationZ(angle)*
-				DirectX::XMMatrixRotationY(angle)*
-				DirectX::XMMatrixTranslation(0.0f, 0.0f, 2.0f)*
-				DirectX::XMMatrixPerspectiveLH(1.0f, 0.75f, 0.4f, 100.0f)
-				
-			)
-		}
-	};
-
-	Microsoft::WRL::ComPtr<ID3D11Buffer>vsConstantBuffer;
-
-	D3D11_BUFFER_DESC vsConstBuffDesc = { 0 };
-	vsConstBuffDesc.ByteWidth = sizeof(cb);
-	vsConstBuffDesc.Usage = D3D11_USAGE_DYNAMIC;
-	vsConstBuffDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	vsConstBuffDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	vsConstBuffDesc.MiscFlags = 0u;
-
-	D3D11_SUBRESOURCE_DATA vsConstSubResData = { 0 };
-	vsConstSubResData.pSysMem = &cb;
-
-	device->CreateBuffer(&vsConstBuffDesc, &vsConstSubResData, &vsConstantBuffer);
-	context->VSSetConstantBuffers(0u, 1u, vsConstantBuffer.GetAddressOf());
-	//pixel shader
-	Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader;
-	Microsoft::WRL::ComPtr<ID3DBlob> blob;
-
-	D3DReadFileToBlob(L"PixelShader.cso", &blob);
-	device->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &pixelShader);
-	
-	context->PSSetShader(pixelShader.Get(), nullptr, 0u);
-
-	//topology
-	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-
-	//vertex shader
-	Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader;
-	
-	D3DReadFileToBlob(L"VertexShader.cso", &blob);
-	device->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &vertexShader);
-	
-	context->VSSetShader(vertexShader.Get(), nullptr, 0u);
-
-	//render target view
-	context->OMSetRenderTargets(1u, rtw.GetAddressOf(), nullptr);
-
-	//viewport config
-	D3D11_VIEWPORT vwp = { 0 };
-	vwp.TopLeftX = 0;
-	vwp.TopLeftY = 0;
-	vwp.Width = 1024;//640
-	vwp.Height = 768;	//480
-	vwp.MinDepth = 0;
-	vwp.MaxDepth = 1;
-	context->RSSetViewports(1u, &vwp);
-
-	//Input Layout
-	Microsoft::WRL::ComPtr<ID3D11InputLayout> iLayout;
-	const D3D11_INPUT_ELEMENT_DESC iDesc[] =
-	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,0,0,D3D11_INPUT_PER_VERTEX_DATA,0 },
-		{ "COLOR", 0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
-	};
-	device->CreateInputLayout(iDesc, (UINT)std::size(iDesc), blob->GetBufferPointer(), blob->GetBufferSize(), &iLayout);
-	context->IASetInputLayout(iLayout.Get());
-
-	//Rasterizer state
-	Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterState;
-
-	D3D11_RASTERIZER_DESC rsDesc;
-	rsDesc.FillMode = D3D11_FILL_SOLID;
-	rsDesc.CullMode = D3D11_CULL_BACK;
-	rsDesc.FrontCounterClockwise = true;
-	rsDesc.DepthBias = false;
-	rsDesc.DepthBiasClamp = 0;
-	rsDesc.SlopeScaledDepthBias = 0;
-	rsDesc.DepthClipEnable = true;
-	rsDesc.ScissorEnable = true;
-	rsDesc.MultisampleEnable = true;
-	rsDesc.AntialiasedLineEnable = true;
-
-	device->CreateRasterizerState(&rsDesc, &rasterState);
-	context->RSSetState(rasterState.Get());
-	
-
-	//draw
-	context->DrawIndexed(std::size(indices), 0u, 0u);
+void Graphics::draw()
+{
+	context->DrawIndexed(36, 0u, 0u);
 }

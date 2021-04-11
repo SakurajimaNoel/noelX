@@ -5,7 +5,8 @@ Game::Game():wnd(L"Big",1024,768){}
 int Game::start() 
 {
 	MSG msg = { 0 };
-	
+
+	cube.emplace(wnd.gfx());
 
 	while (true)
 	{
@@ -24,12 +25,13 @@ int Game::start()
 		}
 		
 	}
-
+	
 }
 
 void Game::update()
 {
 	wnd.gfx().clearBuffer(1.0, 0.5f, 0.25f);
-	wnd.gfx().drawTriangle(time.getTime());
+	cube.value().setVSConstantBuffer(wnd.gfx(), time.getTime());
+	wnd.gfx().draw();
 	wnd.gfx().flipBackBuffer();
 }
