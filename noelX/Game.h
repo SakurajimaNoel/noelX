@@ -12,6 +12,7 @@ private:
 	Window wnd;
 	Time time;
 	std::optional<Cube>cube;
+	std::optional<Cube>cube2;
 };
 
 
