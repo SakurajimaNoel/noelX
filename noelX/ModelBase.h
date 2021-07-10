@@ -1,6 +1,8 @@
 #pragma once
 #include "Graphics.h"
-
+#include <WICTextureLoader.h>
+#include <DirectXHelpers.h>
+#include <DDSTextureLoader.h>
 class ModelBase 
 {
 protected:
@@ -69,7 +71,8 @@ protected:
 
 	}
 
-
+	void setTexture(Graphics& gfx);
+	void setSampler(Graphics& gfx);
 	void setIndexBuffer(Graphics& gfx, const std::vector<unsigned short>& indices);
 	void setPixelShader(Graphics& gfx, LPCWSTR psShader);
 	void setVertexShaderAndIA(Graphics& gfx, LPCWSTR vsShader, const std::vector<D3D11_INPUT_ELEMENT_DESC>& idesc);

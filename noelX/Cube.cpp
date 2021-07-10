@@ -7,6 +7,8 @@ Cube::Cube(Graphics& gfx)
 	setIndexBuffer(gfx, indices);
 	setPixelShader(gfx, pixelShader);
 	setRasterizer(gfx);
+	setSampler(gfx);
+	setTexture(gfx);
 	setTopology(gfx, topology);
 	setVertexBuffer(gfx, vertices);
 	setVertexShaderAndIA(gfx, vertexShader, idesc);
@@ -31,3 +33,4 @@ void Cube::updateTransform(Graphics& gfx, float angle)
 
 	setVSConstantBuffer(gfx, cbvs);
 }
+

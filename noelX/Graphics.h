@@ -8,13 +8,14 @@
 #include<wrl.h>
 #include<DirectXMath.h>
 #include<ppltasks.h>
+#include "imgui\imgui_impl_dx11.h"
 
 class Graphics
 {
 public:
 	Graphics(HWND hWnd);
 	Graphics();
-	~Graphics() = default;
+	~Graphics();
 	Graphics(const Graphics&) = delete;
 	Graphics& operator=(const Graphics&) = delete;
 	void flipBackBuffer();

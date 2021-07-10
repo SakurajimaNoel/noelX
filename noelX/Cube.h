@@ -4,27 +4,31 @@ class Cube : public ModelBase
 {
 public:
 	Cube(Graphics& gfx);
+	~Cube() = default;
+	Cube(const Cube&) = delete;
+	Cube& operator=(const Cube&) = delete;
 	void updateTransform(Graphics& gfx, float angle);
 private:
-	LPCWSTR pixelShader = L"PixelShader.cso";
+	LPCWSTR pixelShader = L"TexturePixelShader.cso";
 	LPCWSTR vertexShader = L"VertexShader.cso";
 	D3D_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	
 	struct Vertex
 	{
 		DirectX::XMFLOAT3 position;
+		DirectX::XMFLOAT2 texture;
 	};
 
 	const std::vector<Vertex> vertices =
 	{
-		{DirectX::XMFLOAT3(-0.5f,-0.5f,-0.5f)},
-		{DirectX::XMFLOAT3(-0.5f,-0.5f, 0.5f)},
-		{DirectX::XMFLOAT3(-0.5f, 0.5f,-0.5f)},
-		{DirectX::XMFLOAT3(-0.5f, 0.5f, 0.5f)},
-		{DirectX::XMFLOAT3(0.5f,-0.5f,-0.5f)},
-		{DirectX::XMFLOAT3(0.5f,-0.5f, 0.5f)},
-		{DirectX::XMFLOAT3(0.5f, 0.5f,-0.5f)},
-		{DirectX::XMFLOAT3(0.5f, 0.5f, 0.5f)},
+		{DirectX::XMFLOAT3(-0.5f,-0.5f,-0.5f), DirectX::XMFLOAT2(0.0f, 1.0f)},
+		{DirectX::XMFLOAT3(-0.5f,-0.5f, 0.5f), DirectX::XMFLOAT2(0.0f, 0.0f)},
+		{DirectX::XMFLOAT3(-0.5f, 0.5f,-0.5f), DirectX::XMFLOAT2(1.0f, 0.0f)},
+		{DirectX::XMFLOAT3(-0.5f, 0.5f, 0.5f), DirectX::XMFLOAT2(1.0f, 1.0f)},
+		{DirectX::XMFLOAT3(0.5f,-0.5f,-0.5f), DirectX::XMFLOAT2(0.0f, 0.0f)},
+		{DirectX::XMFLOAT3(0.5f,-0.5f, 0.5f), DirectX::XMFLOAT2(0.0f, 0.0f)},
+		{DirectX::XMFLOAT3(0.5f, 0.5f,-0.5f), DirectX::XMFLOAT2(0.0f, 0.0f)},
+		{DirectX::XMFLOAT3(0.5f, 0.5f, 0.5f), DirectX::XMFLOAT2(0.0f, 0.0f)},
 	};
 
 	const std::vector<unsigned short> indices =
@@ -39,7 +43,8 @@ private:
 
 	const std::vector<D3D11_INPUT_ELEMENT_DESC> idesc =
 	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,0,0,D3D11_INPUT_PER_VERTEX_DATA,0 }
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA,0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 
 	struct ConstantBufferPS

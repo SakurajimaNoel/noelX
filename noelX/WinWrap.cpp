@@ -1,5 +1,8 @@
 #include "WinWrap.h"
 
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+
 Window::WindowRegister Window::WindowRegister::wndRg;   //linker error without this
 
 LPCWSTR Window::WindowRegister::getName() 
@@ -60,11 +63,13 @@ Window::Window(LPCWSTR wndName, const int width, const int height)
 		WindowRegister::getInstance(),
 		this);
 	ShowWindow(hWnd, SW_SHOW);
+	ImGui_ImplWin32_Init(hWnd);  //gui win32 init
 	pGfx.emplace(hWnd);
 }
 
 Window::~Window()
 {
+	ImGui_ImplWin32_Shutdown();
 	DestroyWindow(hWnd);
 }
 
@@ -94,6 +99,10 @@ LRESULT CALLBACK Window::msgHandlerAssign(HWND hWnd,UINT uMsg, WPARAM wParam, LP
 
 LRESULT Window::msgHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	if (ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam))
+	{
+		return true;
+	}
 	switch (uMsg)
 	{
 	case WM_CLOSE:

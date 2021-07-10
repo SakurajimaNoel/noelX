@@ -88,3 +88,39 @@ void ModelBase::setViewport(Graphics& gfx)
 	vwp.MaxDepth = 1;
 	gfx.getContext()->RSSetViewports(1u, &vwp);
 }
+
+void ModelBase::setTexture(Graphics& gfx)
+{
+	Microsoft::WRL::ComPtr<ID3D11Resource> resource;
+	
+	//Microsoft::WRL::ComPtr<ID3D11Texture2D> tex;
+	//resource.As(&tex);
+
+	//CD3D11_TEXTURE2D_DESC texDesc;
+	//tex->GetDesc(&texDesc);
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srw;
+	HRESULT hr = DirectX::CreateDDSTextureFromFileEx(gfx.getDevice(), L"mlgmap.dds", 0, D3D11_USAGE_IMMUTABLE, D3D11_BIND_SHADER_RESOURCE, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, false, resource.GetAddressOf(), srw.GetAddressOf());
+	if (FAILED(hr))
+	{
+		OutputDebugString(L"Texture loading failed");
+	}
+	
+	gfx.getContext()->PSSetShaderResources(0u, 1u, srw.GetAddressOf());
+}
+
+void ModelBase::setSampler(Graphics& gfx)
+{
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> smplr;
+
+	D3D11_SAMPLER_DESC smpDesc = {};
+	smpDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	smpDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	smpDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	smpDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+
+	gfx.getDevice()->CreateSamplerState(&smpDesc, &smplr);
+	gfx.getContext()->PSSetSamplers(0u, 1u, smplr.GetAddressOf());
+	
+
+}

@@ -71,6 +71,14 @@ Graphics::Graphics(HWND hWnd)
 
 	//render target view
 	context->OMSetRenderTargets(1u, rtw.GetAddressOf(), dsw.Get());
+
+	ImGui_ImplDX11_Init(device.Get(), context.Get()); //gui dx11 init
+	
+}
+
+Graphics::~Graphics()
+{
+	ImGui_ImplDX11_Shutdown();
 }
 
 void Graphics::createResources()

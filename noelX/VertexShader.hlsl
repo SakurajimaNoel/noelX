@@ -2,8 +2,15 @@ cbuffer cBuff
 {
 	 matrix transform;
 };
-
-float4 main(float3 pos : POSITION) : SV_POSITION
+struct VSOut
 {
-	return mul(float4(pos, 1.0f), transform);
+	float4 pos : SV_POSITION;
+	float3 tex : TEXCOORD;
+};
+VSOut main(float3 pos : POSITION, float2 tex : TEXCOORD)
+{
+	VSOut vso;
+	vso.pos = mul(float4(pos, 1.0f), transform);
+	vso.tex = pos;
+	return vso;
 }
