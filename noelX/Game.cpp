@@ -6,7 +6,8 @@ int Game::start()
 {
 	MSG msg = { 0 };
 	cube.emplace(wnd.gfx());
-	cube2.emplace(wnd.gfx());
+	skybox.emplace(wnd.gfx());
+	//cube2.emplace(wnd.gfx());
 	while (true)
 	{
 		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
@@ -29,12 +30,18 @@ int Game::start()
 
 void Game::update()
 {
-	wnd.gfx().clearBuffer(1.0, 0.5f, 0.25f);
-	cube.value().updateTransform(wnd.gfx(), time.getTime());
-	wnd.gfx().draw();
+	wnd.gfx().clearBuffer(sliderVar, 0.5f, 0.25f);
+
+	wnd.gfx().SetCamera(camera.getMatrix());
+	
+	cube.value().updateTransform(wnd.gfx());
+	cube.value().bindAndDrawI(wnd.gfx());
 	//cube2.value().updateTransform(wnd.gfx(), time.getTime() + 2.0f);
 	//wnd.gfx().draw();
-
+	wnd.gfx().updateDepthStencil(D3D11_COMPARISON_LESS_EQUAL);
+	skybox.value().updateTransform(wnd.gfx());
+	skybox.value().bindAndDrawI(wnd.gfx());
+	wnd.gfx().updateDepthStencil(D3D11_COMPARISON_LESS);
 	//gui
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
@@ -45,6 +52,15 @@ void Game::update()
 	{
 		ImGui::ShowDemoWindow(&show_demo);
 	}
+
+	if (ImGui::Begin("Test Window"))
+	{
+		ImGui::SliderFloat("Color", &sliderVar, 0.0f, 1.0f);
+	}
+	ImGui::End();
+
+	camera.startCameraWindow();
+
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	//end

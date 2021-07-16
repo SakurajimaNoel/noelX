@@ -2,7 +2,9 @@
 #include "WinWrap.h"
 #include "Time.h"
 #include "Cube.h"
+#include "Skybox.h"
 #include "GuiManager.h"
+#include "Camera.h"
 class Game
 {
 public:
@@ -13,8 +15,11 @@ private:
 	GuiManager guiManager;
 	Window wnd;
 	Time time;
+	Camera camera;
 	std::optional<Cube>cube;
-	std::optional<Cube>cube2;
+	std::optional<Skybox>skybox;
+	float sliderVar = 0.0f;
+	//std::optional<Cube>cube2;
 };
 
 

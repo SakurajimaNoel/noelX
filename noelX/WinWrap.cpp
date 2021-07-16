@@ -73,33 +73,33 @@ Window::~Window()
 	DestroyWindow(hWnd);
 }
 
-LRESULT CALLBACK Window::msgHandlerAssign(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lParam) 
+LRESULT CALLBACK Window::msgHandlerAssign(HWND lhWnd,UINT uMsg, WPARAM wParam, LPARAM lParam) 
 {
 	Window* pWnd = nullptr;
 	if (uMsg == WM_NCCREATE) 
 	{
 		CREATESTRUCTW* pStruct = (CREATESTRUCTW*)lParam;
 		pWnd = (Window*)pStruct->lpCreateParams;
-		SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)pWnd);
+		SetWindowLongPtr(lhWnd, GWLP_USERDATA, (LONG_PTR)pWnd);
 	}
 	else
 	{
-		pWnd = (Window*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+		pWnd = (Window*)GetWindowLongPtr(lhWnd, GWLP_USERDATA);
 	}
 	if (pWnd)
 	{
-		return pWnd->msgHandler(hWnd, uMsg, wParam, lParam);
+		return pWnd->msgHandler(lhWnd, uMsg, wParam, lParam);
 	}
 	else
 	{
-		return DefWindowProc(hWnd, uMsg, wParam, lParam);
+		return DefWindowProc(lhWnd, uMsg, wParam, lParam);
 	}
 	
 }
 
-LRESULT Window::msgHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT Window::msgHandler(HWND lhWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	if (ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam))
+	if (ImGui_ImplWin32_WndProcHandler(lhWnd, uMsg, wParam, lParam))
 	{
 		return true;
 	}
@@ -109,8 +109,8 @@ LRESULT Window::msgHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		PostQuitMessage(420);
 		return 0;
 	case WM_KEYDOWN:
-		if (wParam == 'F') SetWindowText(hWnd, L"hello");
+		if (wParam == 'F') SetWindowText(lhWnd, L"hello");
 		break;
 	}
-	return DefWindowProc(hWnd, uMsg, wParam, lParam);
+	return DefWindowProc(lhWnd, uMsg, wParam, lParam);
 }

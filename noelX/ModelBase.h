@@ -7,8 +7,22 @@ class ModelBase
 {
 protected:
 	
+	Microsoft::WRL::ComPtr<ID3D11Buffer> pVSConstantBuffer = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> pPSConstantBuffer = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> pVertexBuffer = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> pIndexBuffer = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11PixelShader> pPixelShader = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11VertexShader> pVertexShader = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11InputLayout> iLayout = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> pRasterState = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srw = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> smplr = nullptr;
+	
+	UINT stride = 0;
+	const UINT offset = 0u;
+
 	template <class VS>
-	void setVSConstantBuffer(Graphics& gfx, const std::vector<VS>& cbvs) 
+	void initVSConstantBuffer(Graphics& gfx, const std::vector<VS>& cbvs) 
 	{
 		D3D11_BUFFER_DESC vsConstBuffDesc = { 0 };
 		vsConstBuffDesc.ByteWidth = UINT(sizeof(VS) * cbvs.size());
@@ -21,14 +35,14 @@ protected:
 		D3D11_SUBRESOURCE_DATA vsConstSubResData = { 0 };
 		vsConstSubResData.pSysMem = cbvs.data();
 
-		Microsoft::WRL::ComPtr<ID3D11Buffer> pVSConstantBuffer;
+		
 		gfx.getDevice()->CreateBuffer(&vsConstBuffDesc, &vsConstSubResData, &pVSConstantBuffer);
 		gfx.getContext()->VSSetConstantBuffers(0u, 1u, pVSConstantBuffer.GetAddressOf());
 
 	}
 
 	template <class PS>
-	void setPSConstantBuffer(Graphics& gfx, const std::vector<PS>& cbps)
+	void initPSConstantBuffer(Graphics& gfx, const std::vector<PS>& cbps)
 	{
 		D3D11_BUFFER_DESC psBuffDesc = { 0 };
 		psBuffDesc.ByteWidth = UINT(sizeof(PS) * cbps.size());
@@ -40,7 +54,7 @@ protected:
 		D3D11_SUBRESOURCE_DATA psConstSubResData = { 0 };
 		psConstSubResData.pSysMem = cbps.data();
 
-		Microsoft::WRL::ComPtr<ID3D11Buffer> pPSConstantBuffer;
+		
 		gfx.getDevice()->CreateBuffer(&psBuffDesc, &psConstSubResData, &pPSConstantBuffer);
 		gfx.getContext()->PSSetConstantBuffers(0u, 1u, pPSConstantBuffer.GetAddressOf());
 
@@ -48,9 +62,9 @@ protected:
 
 
 	template <class T> //weird template shit gives linker error if definition is moved to .cpp
-	void setVertexBuffer(Graphics& gfx, const std::vector<T>& vertices) 
+	void initVertexBuffer(Graphics& gfx, const std::vector<T>& vertices) 
 	{
-		Microsoft::WRL::ComPtr<ID3D11Buffer> pVertexBuffer;
+		
 		D3D11_BUFFER_DESC bufferDesc = { 0 };
 		bufferDesc.ByteWidth = UINT(sizeof(T) * vertices.size());
 		bufferDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -64,19 +78,26 @@ protected:
 
 		gfx.getDevice()->CreateBuffer(&bufferDesc, &subResData, &pVertexBuffer);
 
-		const UINT stride = sizeof(T);
-		const UINT offset = 0u;
+		stride = sizeof(T);
 
 		gfx.getContext()->IASetVertexBuffers(0u, 1u, pVertexBuffer.GetAddressOf(), &stride, &offset);
 
 	}
 
-	void setTexture(Graphics& gfx);
-	void setSampler(Graphics& gfx);
-	void setIndexBuffer(Graphics& gfx, const std::vector<unsigned short>& indices);
-	void setPixelShader(Graphics& gfx, LPCWSTR psShader);
-	void setVertexShaderAndIA(Graphics& gfx, LPCWSTR vsShader, const std::vector<D3D11_INPUT_ELEMENT_DESC>& idesc);
-	void setRasterizer(Graphics& gfx);
+	void initTexture(Graphics& gfx, LPCWSTR& texture);
+	void initSampler(Graphics& gfx);
+	void initIndexBuffer(Graphics& gfx, const std::vector<unsigned short>& indices);
+	void initPixelShader(Graphics& gfx, LPCWSTR psShader);
+	void initVertexShaderAndIA(Graphics& gfx, LPCWSTR vsShader, const std::vector<D3D11_INPUT_ELEMENT_DESC>& idesc);
+	void initRasterizer(Graphics& gfx, enum D3D11_CULL_MODE cullMode);
 	void setTopology(Graphics& gfx, D3D_PRIMITIVE_TOPOLOGY topology);
-	void setViewport(Graphics& gfx);
+	void initViewport(Graphics& gfx);
+
+	void bindResources(Graphics& gfx);
+	/*void bindVSConstBuffer();
+	void bindPSConstBuffer();
+	void bindIndexBuffer();
+	void bindVertexBuffer();
+	void bindPixelShader();
+	void bindVertexShaderIA();*/
 };

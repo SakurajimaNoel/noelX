@@ -1,8 +1,5 @@
 #include "Graphics.h"
 
-Graphics::Graphics()
-{
-}
 
 Graphics::Graphics(HWND hWnd)
 {
@@ -25,7 +22,7 @@ Graphics::Graphics(HWND hWnd)
 		nullptr,
 		D3D_DRIVER_TYPE_HARDWARE,
 		nullptr,
-		D3D11_CREATE_DEVICE_DEBUG,
+		D3D11_CREATE_DEVICE_DEBUG, 
 		nullptr,
 		0,
 		D3D11_SDK_VERSION,
@@ -47,7 +44,7 @@ Graphics::Graphics(HWND hWnd)
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState>depthStencil;
 	device->CreateDepthStencilState(&dsDesc, &depthStencil);
 	context->OMSetDepthStencilState(depthStencil.Get(), 1u);
-
+	
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> depthMask;
 	D3D11_TEXTURE2D_DESC depthMaskDesc = { 0 };
 	depthMaskDesc.Format = DXGI_FORMAT_D32_FLOAT;
@@ -61,7 +58,7 @@ Graphics::Graphics(HWND hWnd)
 	depthMaskDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 	
 	device->CreateTexture2D(&depthMaskDesc, nullptr, &depthMask);
-
+	OutputDebugString(L"graphic run");
 
 	D3D11_DEPTH_STENCIL_VIEW_DESC dswDesc = { };
 	dswDesc.Format = DXGI_FORMAT_D32_FLOAT;
@@ -81,17 +78,17 @@ Graphics::~Graphics()
 	ImGui_ImplDX11_Shutdown();
 }
 
-void Graphics::createResources()
+/*void Graphics::createResources()
 {
-	/*auto createShadersTask = Concurrency::create_task([this]() 
+	auto createShadersTask = Concurrency::create_task([this]() 
 	{
 		
 	});
 	auto createGeometryTask = createShadersTask.then([this]()
 	{
 		
-	});*/
-}
+	});
+}*/
 
 void Graphics::flipBackBuffer()
 {
@@ -103,6 +100,28 @@ void Graphics::clearBuffer(float r, float g, float b)
 	const float color[] = { r, g, b, 1.0f };
 	context->ClearRenderTargetView(rtw.Get(), color);
 	context->ClearDepthStencilView(dsw.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
+}
+
+void Graphics::updateDepthStencil(enum D3D11_COMPARISON_FUNC compValue)
+{
+	D3D11_DEPTH_STENCIL_DESC dsDesc = { 0 };
+	dsDesc.DepthEnable = true;
+	dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	dsDesc.DepthFunc = compValue;
+
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilState>depthStencil;
+	device->CreateDepthStencilState(&dsDesc, &depthStencil);
+	context->OMSetDepthStencilState(depthStencil.Get(), 1u);
+}
+
+void Graphics::SetCamera(DirectX::FXMMATRIX cam)
+{
+	camera = cam;
+}
+
+DirectX::XMMATRIX Graphics::getCamera()
+{
+	return camera;
 }
 
 ID3D11Device* Graphics::getDevice()

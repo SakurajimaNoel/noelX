@@ -7,12 +7,16 @@ public:
 	~Cube() = default;
 	Cube(const Cube&) = delete;
 	Cube& operator=(const Cube&) = delete;
-	void updateTransform(Graphics& gfx, float angle);
+	void updateTransform(Graphics& gfx);
+	void bindAndDrawI(Graphics& gfx);
 private:
 	LPCWSTR pixelShader = L"TexturePixelShader.cso";
 	LPCWSTR vertexShader = L"VertexShader.cso";
+	LPCWSTR texture = L"mlgmap.dds";
 	D3D_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	
+
+
 	struct Vertex
 	{
 		DirectX::XMFLOAT3 position;
@@ -46,7 +50,7 @@ private:
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA,0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
-
+	/*
 	struct ConstantBufferPS
 	{
 			float r;
@@ -64,24 +68,27 @@ private:
 			{1.0f, 1.0f, 1.0f},
 			{1.0f, 0.0f, 1.0f}
 	};
-
+	*/
 	struct ConstantBuffer
 	{
 		DirectX::XMMATRIX transform;
 	};
 
-	const std::vector<ConstantBuffer> cbvs =
+	std::vector<ConstantBuffer> cbvs =
 	{
 		{
 			DirectX::XMMatrixTranspose
 			(
-				DirectX::XMMatrixRotationZ(0) *
-				DirectX::XMMatrixRotationY(0) *
-				DirectX::XMMatrixTranslation(0.0f, 0.0f, 2.0f) *
+				//DirectX::XMMatrixRotationZ(0) *
+				//DirectX::XMMatrixRotationY(0) *
+				//DirectX::XMMatrixTranslation(0.0f, 0.0f, 2.0f) *
 				DirectX::XMMatrixPerspectiveLH(1.0f, 0.75f, 0.4f, 100.0f)
 
 			)
 		}
 	};
+
+	
+
 
 };

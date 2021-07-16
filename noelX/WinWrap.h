@@ -30,7 +30,7 @@ private:
 	};
 	
 	HWND hWnd;
-	static LRESULT CALLBACK msgHandlerAssign(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-	LRESULT msgHandler(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	static LRESULT CALLBACK msgHandlerAssign(HWND lhWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	LRESULT msgHandler(HWND lhWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	std::optional<Graphics> pGfx;  //lazy/deferred object initialisation
 };
