@@ -137,7 +137,12 @@ ID3D11DeviceContext* Graphics::getContext()
 	return context.Get();
 }
 
-void Graphics::draw()
+void Graphics::drawIndexed(int const &indexSize)
 {
-	context->DrawIndexed(36, 0u, 0u);
+	context->DrawIndexed(indexSize, 0u, 0u);
+}
+
+void Graphics::draw(int const& verticeSize)
+{
+	context->Draw(verticeSize, 0u);
 }

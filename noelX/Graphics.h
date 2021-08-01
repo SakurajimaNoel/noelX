@@ -20,7 +20,8 @@ public:
 	void flipBackBuffer();
 	void clearBuffer(float r, float g, float b);
 	//void createResources();
-	void draw();
+	void drawIndexed(int const &indexSize);
+	void draw(int const& verticeSize);
 	void SetCamera(DirectX::FXMMATRIX cam);
 	void updateDepthStencil(enum D3D11_COMPARISON_FUNC compValue);
 	DirectX::XMMATRIX getCamera();

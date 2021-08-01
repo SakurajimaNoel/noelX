@@ -7,6 +7,7 @@ int Game::start()
 	MSG msg = { 0 };
 	cube.emplace(wnd.gfx());
 	skybox.emplace(wnd.gfx());
+	pyramid.emplace(wnd.gfx());
 	//cube2.emplace(wnd.gfx());
 	while (true)
 	{
@@ -36,6 +37,9 @@ void Game::update()
 	
 	cube.value().updateTransform(wnd.gfx());
 	cube.value().bindAndDrawI(wnd.gfx());
+
+	pyramid.value().updateTransform(wnd.gfx());
+	pyramid.value().bindAndDrawI(wnd.gfx());
 	//cube2.value().updateTransform(wnd.gfx(), time.getTime() + 2.0f);
 	//wnd.gfx().draw();
 	wnd.gfx().updateDepthStencil(D3D11_COMPARISON_LESS_EQUAL);

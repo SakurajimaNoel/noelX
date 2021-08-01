@@ -41,5 +41,5 @@ void Cube::updateTransform(Graphics& gfx)
 void Cube::bindAndDrawI(Graphics& gfx)
 {
 	bindResources(gfx);
-	gfx.draw();
+	gfx.drawIndexed(indices.size());
 }
