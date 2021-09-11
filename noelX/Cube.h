@@ -7,7 +7,7 @@ public:
 	~Cube() = default;
 	Cube(const Cube&) = delete;
 	Cube& operator=(const Cube&) = delete;
-	void updateTransform(Graphics& gfx);
+	void updateTransform(Graphics& gfx, DirectX::XMFLOAT3 pos);
 	void bindAndDrawI(Graphics& gfx);
 private:
 	LPCWSTR pixelShader = L"TexturePixelShader.cso";

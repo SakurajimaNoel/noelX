@@ -6,8 +6,9 @@ int Game::start()
 {
 	MSG msg = { 0 };
 	cube.emplace(wnd.gfx());
+	ucube.emplace(wnd.gfx());
 	skybox.emplace(wnd.gfx());
-	pyramid.emplace(wnd.gfx());
+
 	//cube2.emplace(wnd.gfx());
 	while (true)
 	{
@@ -35,17 +36,21 @@ void Game::update()
 
 	wnd.gfx().SetCamera(camera.getMatrix());
 	
-	cube.value().updateTransform(wnd.gfx());
+	
+	pLight.updateBuffer(wnd.gfx());
+	ucube.value().updateTransform(wnd.gfx());
+	ucube.value().bindAndDraw(wnd.gfx());
+	cube.value().updateTransform(wnd.gfx(),pLight.pos);
 	cube.value().bindAndDrawI(wnd.gfx());
-
-	pyramid.value().updateTransform(wnd.gfx());
-	pyramid.value().bindAndDrawI(wnd.gfx());
 	//cube2.value().updateTransform(wnd.gfx(), time.getTime() + 2.0f);
 	//wnd.gfx().draw();
 	wnd.gfx().updateDepthStencil(D3D11_COMPARISON_LESS_EQUAL);
 	skybox.value().updateTransform(wnd.gfx());
 	skybox.value().bindAndDrawI(wnd.gfx());
+	
 	wnd.gfx().updateDepthStencil(D3D11_COMPARISON_LESS);
+
+
 	//gui
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
@@ -64,7 +69,7 @@ void Game::update()
 	ImGui::End();
 
 	camera.startCameraWindow();
-
+	pLight.startLightWindow();
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	//end

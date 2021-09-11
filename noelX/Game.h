@@ -3,9 +3,10 @@
 #include "Time.h"
 #include "Cube.h"
 #include "Skybox.h"
-#include "Pyramid.h"
+#include "UnindexedCube.h"
 #include "GuiManager.h"
 #include "Camera.h"
+#include "PointLight.h"
 class Game
 {
 public:
@@ -17,9 +18,10 @@ private:
 	Window wnd;
 	Time time;
 	Camera camera;
+	PointLight pLight;
 	std::optional<Cube>cube;
+	std::optional<UnindexedCube>ucube;
 	std::optional<Skybox>skybox;
-	std::optional<Pyramid>pyramid;
 	float sliderVar = 0.0f;
 	//std::optional<Cube>cube2;
 };

@@ -1,21 +1,21 @@
-#include "Cube.h"
+#include "UnindexedCube.h"
 
-Cube::Cube(Graphics& gfx)
+UnindexedCube::UnindexedCube(Graphics& gfx)
 {
 	initVSConstantBuffer(gfx, cbvs);
 	//initPSConstantBuffer(gfx, cbps);
-	initIndexBuffer(gfx, indices);
+	//initIndexBuffer(gfx, indices);
 	initPixelShader(gfx, pixelShader);
 	initRasterizer(gfx, D3D11_CULL_BACK);
-	initSampler(gfx);
-	initTexture(gfx, texture);
+	//initSampler(gfx);
+	//initTexture(gfx, texture);
 	setTopology(gfx, topology);
 	initVertexBuffer(gfx, vertices);
 	initVertexShaderAndIA(gfx, vertexShader, idesc);
 	initViewport(gfx);
 }
 
-void Cube::updateTransform(Graphics& gfx, DirectX::XMFLOAT3 pos)
+void UnindexedCube::updateTransform(Graphics& gfx)
 {
 	cbvs =
 	{
@@ -24,13 +24,10 @@ void Cube::updateTransform(Graphics& gfx, DirectX::XMFLOAT3 pos)
 			(
 				//DirectX::XMMatrixRotationZ(angle) *
 				//DirectX::XMMatrixRotationY(angle) *
-				gfx.getCamera()*
-				DirectX::XMMatrixTranslation(-pos.x, pos.y, -pos.z) *
+				gfx.getCamera() *
+				//DirectX::XMMatrixTranslation(0.0f, 0.0f, 2.0f) *
 				DirectX::XMMatrixPerspectiveLH(1.0f, 0.75f, 0.4f, 100.0f) //projection matrix
 				//DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(45.0f), 1024/768, 0.4f, 100.0f)
-				
-				
-
 			)
 		}
 	};
@@ -38,8 +35,8 @@ void Cube::updateTransform(Graphics& gfx, DirectX::XMFLOAT3 pos)
 	initVSConstantBuffer(gfx, cbvs);
 }
 
-void Cube::bindAndDrawI(Graphics& gfx)
+void UnindexedCube::bindAndDraw(Graphics& gfx)
 {
 	bindResources(gfx);
-	gfx.drawIndexed(indices.size());
+	gfx.draw(vertices.size());
 }
