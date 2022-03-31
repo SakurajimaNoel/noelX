@@ -8,7 +8,8 @@ public:
 	UnindexedCube(const UnindexedCube&) = delete;
 	void updateTransform(Graphics& gfx);
 	void bindAndDraw(Graphics& gfx);
-
+	DirectX::XMFLOAT3 material = { 0.0f, 1.0f, 0.5f };
+	DirectX::XMMATRIX model = DirectX::XMMatrixIdentity();
 private:
 	LPCWSTR pixelShader = L"PhongPixelShader.cso";
 	LPCWSTR vertexShader = L"PhongVertexShader.cso";
@@ -82,10 +83,25 @@ private:
 
 	struct ConstantBuffer
 	{
-		DirectX::XMMATRIX model;
-	};
+		DirectX::XMMATRIX modelView = DirectX::XMMatrixIdentity();
+		DirectX::XMMATRIX modelViewProjection = DirectX::XMMatrixTranspose
+		(
+			DirectX::XMMatrixPerspectiveLH(1.0f, 0.75f, 0.4f, 100.0f)
+		);
 
-	std::vector<ConstantBuffer>cbvs =
+	} vertexCBuff;
+
+	struct PSMaterialConstantBuffer
+	{
+		alignas(16) DirectX::XMFLOAT3 color;
+		float specularIntensity = 0.6f;
+		float specularPower = 30.0f;
+		float padding[2];
+	} colorCBuff;
+	
+
+
+	/*std::vector<ConstantBuffer>cbvs =
 	{
 		{
 			DirectX::XMMatrixTranspose
@@ -98,5 +114,5 @@ private:
 			)
 		}
 	};
-
+	*/
 };

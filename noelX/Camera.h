@@ -16,10 +16,10 @@ private:
 	float roll;
 	float pitch;
 
-	DirectX::XMFLOAT3 cameraPos;
+	/*DirectX::XMFLOAT3 cameraPos;
 	DirectX::XMFLOAT3 cameraTarget;
 	DirectX::XMFLOAT3 cameraUp;
-	DirectX::XMFLOAT3 direction;
+	DirectX::XMFLOAT3 direction;*/
 
 
 };

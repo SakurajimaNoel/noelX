@@ -9,10 +9,10 @@ Camera::Camera()
 	roll = 0.0f;
 	pitch = 0.0f;
 
-	cameraPos = DirectX::XMFLOAT3(0.0f, 0.0f, -1.0f);
+	/*cameraPos = DirectX::XMFLOAT3(0.0f, 0.0f, -1.0f);
 	cameraTarget = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	cameraUp = DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f);
-	direction = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	direction = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);*/
 }
 
 
@@ -48,6 +48,7 @@ void Camera::startCameraWindow()
 
 DirectX::XMMATRIX Camera::getMatrix()
 {
+	//returns the view matrix
 	const auto position = DirectX::XMVector3Transform(DirectX::XMVectorSet(0.0f, 0.0f, r, 0.0f), DirectX::XMMatrixRotationRollPitchYaw(phi, -theta, 0.0f));
 	return DirectX::XMMatrixLookAtLH(position,
 		DirectX::XMVectorZero(),

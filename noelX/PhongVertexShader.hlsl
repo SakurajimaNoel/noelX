@@ -1,17 +1,17 @@
 cbuffer Cbuff
 {
-	//matrix model;
-	matrix transform;
+	matrix model;
+	matrix viewProjection;
 	
 };
-static const float4x4 model =
+/*static const float4x4 model =
 {
 1, 0, 0, 0, 
 0, 1, 0, 0, 
 0, 0, 1, 0,
 0, 0, 0, 1
 };
-
+*/
 struct VSOut
 {
 	float3 worldPos : Position;
@@ -25,6 +25,6 @@ VSOut main(
 	VSOut vso;
 	vso.worldPos = (float3) mul(float4(pos, 1.0f), model);
 	vso.normal = mul(n, (float3x3) model);
-	vso.pos = mul(float4(pos, 1.0f), transform);
+	vso.pos = mul(float4(pos, 1.0f), viewProjection);
 	return vso;
 }

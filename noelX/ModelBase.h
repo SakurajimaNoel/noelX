@@ -22,41 +22,41 @@ protected:
 	const UINT offset = 0u;
 
 	template <class VS>
-	void initVSConstantBuffer(Graphics& gfx, const std::vector<VS>& cbvs) 
+	void initVSConstantBuffer(Graphics& gfx, const VS& cbvs, UINT slot) 
 	{
 		D3D11_BUFFER_DESC vsConstBuffDesc = { 0 };
-		vsConstBuffDesc.ByteWidth = UINT(sizeof(VS) * cbvs.size());
+		vsConstBuffDesc.ByteWidth = UINT(sizeof(VS));
 		vsConstBuffDesc.Usage = D3D11_USAGE_DYNAMIC;
 		vsConstBuffDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		vsConstBuffDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		vsConstBuffDesc.MiscFlags = 0u;
-		vsConstBuffDesc.StructureByteStride = sizeof(VS);
+		vsConstBuffDesc.StructureByteStride = 0u;
 
 		D3D11_SUBRESOURCE_DATA vsConstSubResData = { 0 };
-		vsConstSubResData.pSysMem = cbvs.data();
+		vsConstSubResData.pSysMem = &cbvs;
 
 		
 		gfx.getDevice()->CreateBuffer(&vsConstBuffDesc, &vsConstSubResData, &pVSConstantBuffer);
-		gfx.getContext()->VSSetConstantBuffers(0u, 1u, pVSConstantBuffer.GetAddressOf());
+		gfx.getContext()->VSSetConstantBuffers(slot, 1u, pVSConstantBuffer.GetAddressOf());
 
 	}
 
 	template <class PS>
-	void initPSConstantBuffer(Graphics& gfx, const std::vector<PS>& cbps)
+	void initPSConstantBuffer(Graphics& gfx, const PS& cbps, UINT slot)
 	{
 		D3D11_BUFFER_DESC psBuffDesc = { 0 };
-		psBuffDesc.ByteWidth = UINT(sizeof(PS) * cbps.size());
+		psBuffDesc.ByteWidth = UINT(sizeof(PS));
 		psBuffDesc.Usage = D3D11_USAGE_DYNAMIC;
 		psBuffDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		psBuffDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		psBuffDesc.MiscFlags = 0u;
-		psBuffDesc.StructureByteStride = sizeof(PS);
+		psBuffDesc.StructureByteStride = 0u;
 		D3D11_SUBRESOURCE_DATA psConstSubResData = { 0 };
-		psConstSubResData.pSysMem = cbps.data();
+		psConstSubResData.pSysMem = &cbps;
 
 		
 		gfx.getDevice()->CreateBuffer(&psBuffDesc, &psConstSubResData, &pPSConstantBuffer);
-		gfx.getContext()->PSSetConstantBuffers(0u, 1u, pPSConstantBuffer.GetAddressOf());
+		gfx.getContext()->PSSetConstantBuffers(slot, 1u, pPSConstantBuffer.GetAddressOf());
 
 	}
 

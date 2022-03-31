@@ -51,8 +51,13 @@ private:
 
 	struct ConstantBuffer
 	{
-		DirectX::XMMATRIX transform;
-	};
+		DirectX::XMMATRIX transform = DirectX::XMMatrixTranspose
+		(
+			//DirectX::XMMatrixTranslation(0.0f, 0.0f, 2.0f) *
+			DirectX::XMMatrixPerspectiveLH(1.0f, 0.75f, 0.4f, 100.0f)
+
+		);
+	} vertexCBuff;
 
 	std::vector<ConstantBuffer> cbvs =
 	{

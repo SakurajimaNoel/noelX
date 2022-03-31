@@ -2,7 +2,7 @@
 
 Cube::Cube(Graphics& gfx)
 {
-	initVSConstantBuffer(gfx, cbvs);
+	initVSConstantBuffer(gfx, cbvs,0u);
 	//initPSConstantBuffer(gfx, cbps);
 	initIndexBuffer(gfx, indices);
 	initPixelShader(gfx, pixelShader);
@@ -35,7 +35,7 @@ void Cube::updateTransform(Graphics& gfx, DirectX::XMFLOAT3 pos)
 		}
 	};
 
-	initVSConstantBuffer(gfx, cbvs);
+	initVSConstantBuffer(gfx, cbvs,0u);
 }
 
 void Cube::bindAndDrawI(Graphics& gfx)

@@ -2,8 +2,9 @@
 
 UnindexedCube::UnindexedCube(Graphics& gfx)
 {
-	initVSConstantBuffer(gfx, cbvs);
-	//initPSConstantBuffer(gfx, cbps);
+	initVSConstantBuffer(gfx, vertexCBuff, 0u);
+	colorCBuff.color = material;
+	initPSConstantBuffer(gfx, colorCBuff, 1);
 	//initIndexBuffer(gfx, indices);
 	initPixelShader(gfx, pixelShader);
 	initRasterizer(gfx, D3D11_CULL_BACK);
@@ -17,22 +18,30 @@ UnindexedCube::UnindexedCube(Graphics& gfx)
 
 void UnindexedCube::updateTransform(Graphics& gfx)
 {
-	cbvs =
+	
+	vertexCBuff.modelView = DirectX::XMMatrixIdentity() * gfx.getCamera();
+	vertexCBuff.modelViewProjection = DirectX::XMMatrixTranspose
+	(
+		vertexCBuff.modelView * //model
+		//gfx.getCamera() * //view
+		DirectX::XMMatrixPerspectiveLH(1.0f, 0.75f, 0.4f, 100.0f) //projection matrix
+	);
+	
+	
+	
+	/*cbvs =
 	{
 		{
 			DirectX::XMMatrixTranspose
 			(
-				//DirectX::XMMatrixRotationZ(angle) *
-				//DirectX::XMMatrixRotationY(angle) *
-				gfx.getCamera() *
-				//DirectX::XMMatrixTranslation(0.0f, 0.0f, 2.0f) *
+				gfx.getCamera() *  
 				DirectX::XMMatrixPerspectiveLH(1.0f, 0.75f, 0.4f, 100.0f) //projection matrix
-				//DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(45.0f), 1024/768, 0.4f, 100.0f)
+				
 			)
 		}
-	};
+	};*/
 
-	initVSConstantBuffer(gfx, cbvs);
+	initVSConstantBuffer(gfx, vertexCBuff, 0u);
 }
 
 void UnindexedCube::bindAndDraw(Graphics& gfx)

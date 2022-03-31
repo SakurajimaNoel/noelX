@@ -2,7 +2,7 @@
 
 Pyramid::Pyramid(Graphics& gfx)
 {
-	initVSConstantBuffer(gfx, cbvs);
+	initVSConstantBuffer(gfx, cbvs,0u);
 	//initPSConstantBuffer(gfx, cbps);
 	//initIndexBuffer(gfx, indices);
 	initPixelShader(gfx, pixelShader);
@@ -35,7 +35,7 @@ void Pyramid::updateTransform(Graphics& gfx)
 		}
 	};
 
-	initVSConstantBuffer(gfx, cbvs);
+	initVSConstantBuffer(gfx, cbvs,0u);
 }
 
 void Pyramid::bindAndDrawI(Graphics& gfx)

@@ -5,10 +5,10 @@ Game::Game():wnd(L"Big",1024,768){}
 int Game::start() 
 {
 	MSG msg = { 0 };
-	cube.emplace(wnd.gfx());
-	ucube.emplace(wnd.gfx());
+	//cube.emplace(wnd.gfx());
+	//ucube.emplace(wnd.gfx());
 	skybox.emplace(wnd.gfx());
-
+	suzanne.emplace(wnd.gfx());
 	//cube2.emplace(wnd.gfx());
 	while (true)
 	{
@@ -37,13 +37,18 @@ void Game::update()
 	wnd.gfx().SetCamera(camera.getMatrix());
 	
 	
-	pLight.updateBuffer(wnd.gfx());
-	ucube.value().updateTransform(wnd.gfx());
-	ucube.value().bindAndDraw(wnd.gfx());
-	cube.value().updateTransform(wnd.gfx(),pLight.pos);
-	cube.value().bindAndDrawI(wnd.gfx());
+	pLight.updateBuffer(wnd.gfx(), camera.getMatrix());
+	
+	//ucube.value().updateTransform(wnd.gfx());
+	//ucube.value().bindAndDraw(wnd.gfx());
+	suzanne.value().updateTransform(wnd.gfx());
+	suzanne.value().bindAndDraw(wnd.gfx());
+	//cube.value().updateTransform(wnd.gfx(),pLight.pos);
+	//cube.value().bindAndDrawI(wnd.gfx());
+
 	//cube2.value().updateTransform(wnd.gfx(), time.getTime() + 2.0f);
 	//wnd.gfx().draw();
+	
 	wnd.gfx().updateDepthStencil(D3D11_COMPARISON_LESS_EQUAL);
 	skybox.value().updateTransform(wnd.gfx());
 	skybox.value().bindAndDrawI(wnd.gfx());
